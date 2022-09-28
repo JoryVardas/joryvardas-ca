@@ -1,0 +1,23 @@
+$text-color: #f8f8ff;
+
+$brand-orange-rgba:rgba(255,89,0,1);
+$brand-grey-rgba: rgba(82, 82, 82,1);
+
+$text-drop-shadow: 0px 1px 6px #000000;
+$logo-drop-shadow: drop-shadow(0px 1px 6px rgba(0, 0, 0, 0.5));
+
+$background-color: #2f333a;
+$button-color: $brand-orange-rgba;
+$button-hover-color: $brand-grey-rgba;
+
+$gap-size: 1em;
+$button-gap-size:1em;
+$button-height:3em;
+
+$link-section-height: $button-height * 6 + $button-gap-size * 4;
+//$link-section-height:0px;
+$grid-row-height: max(50vh, $link-section-height);
+
+
+$banner-background-color:$brand-orange-rgba;
+$banner-background-gradient:linear-gradient(135deg, $brand-orange-rgba 50%, $brand-grey-rgba 50%);

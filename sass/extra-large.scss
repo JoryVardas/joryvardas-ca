@@ -1,0 +1,43 @@
+@import "variables";
+
+body{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  //grid-template-rows: repeat(2, $grid-row-height);
+  //grid-template-rows: calc(100vh - $link-section-height) $link-section-height;
+
+  background-color: $banner-background-color;
+  background: $banner-background-gradient;
+}
+
+#banner-logo{
+  //max-height: $grid-row-height;
+  //max-height:calc(100vh - $link-section-height)
+}
+
+#banner {
+  grid-column-start: 2;
+  //grid-column-end: 4;
+  grid-row-start: 1;
+}
+#about {
+  grid-column-start: 1;
+  grid-row-start: 1;
+
+  padding-top:$button-gap-size;
+  div{
+    text-align: justify;
+    width:50%;
+    min-width: 300px;
+  }
+
+  //justify-content: flex-end;
+  //padding-bottom: $link-section-height;
+}
+#links {
+  grid-column-start: 3;
+  grid-row-start: 1;
+
+  //justify-content: flex-end;
+  //padding-bottom: $link-section-height;
+}

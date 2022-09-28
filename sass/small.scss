@@ -1,0 +1,24 @@
+@import "variables";
+
+body{
+  display: flex;
+  flex-direction: column;
+  row-gap: $gap-size*3;
+  justify-content: space-between;
+  padding-bottom: $gap-size;
+}
+
+#banner-logo{
+  padding: 2em;
+}
+
+#banner {
+  background-color: $banner-background-color;
+  background: $banner-background-gradient;
+}
+#about {
+  padding-left:4em;
+  padding-right:4em;
+}
+#links {
+}

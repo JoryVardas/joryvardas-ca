@@ -1,0 +1,72 @@
+{
+  "constants": {
+    "sass_file_extension": ".scss"
+  },
+  "style": {
+    "sass_paths": [
+      {
+        "source": "sass",
+        "dest": "css"
+      }
+    ]
+  },
+  "image": {
+    "image_paths": [
+      {
+        "source": "img",
+        "dest": "img"
+      }
+    ]
+  },
+  "html": {
+    "release": {
+      "minify_settings": {
+        "collapseWhitespace": true,
+        "removeComments": true,
+        "removeOptionalTags": true,
+        "removeRedundantAttributes": true,
+        "removeScriptTypeAttributes": true,
+        "removeTagWhitespace": true,
+        "useShortDoctype": true,
+        "minifyCss": true,
+        "minifyJs": true
+      },
+      "replacements": [
+        {"from": "{{reset_css_name}}", "to":  "reset.min.css"}
+      ]
+    },
+    "common": {
+      "replacements": [
+        {"from": "{{github_address}}", "to":  "https://github.com/JoryVardas"},
+        {"from": "{{twitter_address}}", "to":  "https://twitter.com/JoryVardas"},
+        {"from": "{{cv_address}}", "to":  "CV.pdf"}
+      ]
+    },
+    "debug": {
+      "replacements": [
+        {"from": "{{reset_css_name}}", "to":  "reset.min"}
+      ]
+    },
+    "html_paths": [
+      {
+        "source": "index.html",
+        "dest": "index.html"
+      }
+    ]
+  },
+  "files_to_copy": {
+    "release": [
+      {
+        "source": "node_modules/modern-css-reset/dist/reset.min.css",
+        "dest": "css/reset.min.css"
+      }
+    ],
+    "debug": [
+      {
+        "source": "node_modules/modern-css-reset/dist/reset.css",
+        "dest": "css/reset.css"
+      }
+    ]
+  }
+}
+

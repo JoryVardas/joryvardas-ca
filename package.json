@@ -3,31 +3,20 @@
   "version": "0.0.0",
   "description": "Jory Vardas website.",
   "scripts": {
-    "compile-sass-dev": "npx sass --update sass:public-dev/css",
-    "compile-sass": "npx sass --no-source-map sass:public/css --style=compressed",
-    "copy-js-dev": "npx copyfiles js/* public-dev",
-    "copy-js": "npx make-dir public/js ",
-    "copy-images-dev": "npx copyfiles img/* img/font-awesome/* img/featured/* img/illustration/* img/graphic-design/* img/other-projects/* img/video-editing/* public-dev",
-    "copy-images": "npx copyfiles img/* img/font-awesome/* img/featured/* img/illustration/* img/graphic-design/* img/other-projects/* img/video-editing/* public",
-    "copy-html-dev": "npx copyfiles index.html resume.html CV.pdf public-dev",
-    "replace-dev-js": "npx replace-in-file \\\"js/common.js\\\" \\\"\\\" public/index.html &&  npx replace-in-file \\\"js/page-loader.js\\\" \\\"\\\" public/index.html &&  npx replace-in-file \\\"js/details-viewer.js\\\" \\\"\\\" public/index.html &&  npx replace-in-file \"<script src=\\\"\\\"></script><script src=\\\"\\\"></script><script src=\\\"\\\"></script>\" \"<script src=\\\"js/combined.min.js\\\"></script>\" public/index.html",
-    "replace-dev-css": "npx replace-in-file \\\"css/reset.css\\\" \\\"css/reset.min.css\\\" public/index.html",
-    "copy-html": "npx html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true -o \"public/index.html\" --  index.html && npm run replace-dev-js && npm run replace-dev-css && npx copyfiles CV.pdf public",
-    "copy-css-dev": "npx copyfiles -f node_modules/modern-css-reset/dist/reset.css public-dev/css",
-    "copy-css": "npx copyfiles -f node_modules/modern-css-reset/dist/reset.min.css public/css",
-    "copy-favicon-dev": "npx copyfiles -f favicon/* public-dev",
-    "copy-favicon": "npx copyfiles -f favicon/* public",
-    "build-dev": "npm run compile-sass-dev && npm run copy-images-dev && npm run copy-css-dev && npm run copy-js-dev && npm run copy-html-dev && npm run copy-favicon-dev",
-    "build": "npm run compile-sass && npm run copy-images && npm run copy-css && npm run copy-js && npm run copy-html && npm run copy-favicon"
+    "build-dev": "node scripts/build.mjs -d public-dev",
+    "build": "node scripts/build.mjs public"
   },
   "author": "Jory Vardas",
   "devDependencies": {
+    "commander": "^9.4.0",
     "copyfiles": "^2.4.1",
+    "glob": "^8.0.3",
     "html-minifier": "^4.0.0",
     "make-dir-cli": "^3.0.0",
     "modern-css-reset": "^1.4.0",
     "replace-in-file": "^6.3.5",
     "sass": "^1.51.0",
+    "svgo": "^2.8.0",
     "uglify-js": "^3.16.2",
     "uglifyjs": "^2.4.11"
   }

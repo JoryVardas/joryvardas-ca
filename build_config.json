@@ -55,6 +55,12 @@
     ]
   },
   "files_to_copy": {
+    "common": [
+      {
+        "source": "additional_res/Jory-CV_v-9-08-2022.pdf",
+        "dest": "CV.pdf"
+      }
+    ],
     "release": [
       {
         "source": "node_modules/modern-css-reset/dist/reset.min.css",

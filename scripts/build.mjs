@@ -7,6 +7,8 @@ import {optimize as svgOptimize} from 'svgo';
 import replaceInFile from 'replace-in-file';
 import minify from 'html-minifier';
 import * as marked from 'marked';
+import hljs from 'highlight.js';
+import findall from 'findall-string';
 
 const program = new Command();
 
@@ -94,6 +96,66 @@ const ACTION_LIST = {
                 output_file.dest = output_file.dest.slice(0, - options.action_options.from.length) + options.action_options.to;
             }
         });
+    },
+    highlight_code: (output_files, options)=>{
+        // The highlight.js library only allows highlightAll when embedded in the html document.
+        // Since I can't use that function I have to replicate how it works by calling highlightAuto
+        // with the specific code snip-its that need to be processed.
+
+        let input_contents = output_files[0].contents;
+        // Get lists of where each code segment starts and ends
+        // When finding the code start I have to assume that the code tag may have a class attribute,
+        // as such the tag can be closed in the search string.
+        const code_start_indicator = '<pre><code';
+        const code_end_indicator = '</code></pre>';
+        const code_starts = findall(code_start_indicator, input_contents);
+        const code_ends = findall(code_end_indicator, input_contents);
+
+        // Generate a list containing information for each code segment.
+        let code_segments = [];
+        code_starts.forEach((start_position, index)=>{
+            // Find where the code start ends, specifically where the code tag is closed.
+            const end_code_start = input_contents.indexOf('>', start_position+code_start_indicator.length);
+            // Does the code tag have a class attribute, if it does get the language.
+            let code_language = null;
+            const code_class_index = input_contents.indexOf('class', start_position);
+            if(code_class_index !== -1 && code_class_index < end_code_start){
+                const class_list_start = input_contents.indexOf('"', code_class_index);
+                const class_list_end = input_contents.indexOf('"', class_list_start+1);
+                const class_list = input_contents.substring(class_list_start+1, class_list_end);
+
+                const language_specifiers = class_list.match(/\blanguage-\w+/g);
+                if (language_specifiers !== null){
+                    code_language = language_specifiers[0].slice('language-'.length);
+                }
+            }
+
+            code_segments.push({
+                code_language: code_language,
+                code_start: end_code_start + 1,
+                code_end: code_ends[index]
+            });
+        });
+
+        // Now that I have the code segments I can pass them through the highlight.js library
+        code_segments.forEach((code_segment)=>{
+            if(code_segment.code_language === null){
+                code_segment["highlighted_code"] = hljs.highlightAuto(input_contents.substring(code_segment.code_start, code_segment.code_end)).value;
+            }
+            else{
+                code_segment["highlighted_code"] = hljs.highlight(input_contents.substring(code_segment.code_start, code_segment.code_end), {language: code_segment.code_language}).value;
+            }
+        });
+
+        let new_contents = "";
+        let fragment_start = 0;
+        code_segments.forEach((code_segment)=>{
+            new_contents += input_contents.substring(fragment_start, code_segment.code_start);
+            new_contents += code_segment.highlighted_code;
+            fragment_start = code_segment.code_end;
+        });
+        new_contents += input_contents.substring(fragment_start);
+        output_files[0].contents = new_contents;
     }
 }
 

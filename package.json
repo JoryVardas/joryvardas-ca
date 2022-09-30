@@ -10,7 +10,9 @@
   "devDependencies": {
     "commander": "^9.4.0",
     "copyfiles": "^2.4.1",
+    "findall-string": "^1.0.0",
     "glob": "^8.0.3",
+    "highlight.js": "^11.6.0",
     "html-minifier": "^4.0.0",
     "make-dir-cli": "^3.0.0",
     "marked": "^4.1.0",

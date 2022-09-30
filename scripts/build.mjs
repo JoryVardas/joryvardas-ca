@@ -77,6 +77,13 @@ const ACTION_LIST = {
         options.replacements.forEach((replacement)=>{
             output_files[0].contents = output_files[0].contents.replaceAll(replacement.from, replacement.to);
         });
+    },
+    // Requires that action_options has both a template member containing the filepath of the template to use
+    // and an insertion_point member containing the string in the template that should be replaced with
+    // the contents of the source file.
+    insert_into_template: (output_files, options)=>{
+        let template_file = fs.readFileSync(options.action_options.template).toString();
+        output_files[0].contents = template_file.replaceAll(options.action_options.insertion_point, output_files[0].contents);
     }
 }
 

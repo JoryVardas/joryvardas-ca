@@ -56,8 +56,6 @@ const getReplacements = (config, is_debug)=>{
 const ACTION_LIST = {
     compile_sass: (output_files, options)=>{
         let input_file = output_files[0];
-        //The input file will have an incorrect destination so correct it to a css file.
-        input_file.dest = input_file.dest.slice(0,-SASS_FILE_EXTENSION.length) + ".css";
 
         const result = sass.compile(input_file.source, options.action_options || {});
         input_file.contents = result.css;
@@ -88,6 +86,14 @@ const ACTION_LIST = {
     },
     compile_markdown: (output_files, options)=>{
         output_files[0].contents = marked.parse(output_files[0].contents);
+    },
+    // Requires that action_options has both a from and to member the same as a replacement object
+    change_output_extension: (output_files, options)=>{
+        output_files.forEach((output_file)=>{
+            if(output_file.dest.endsWith(options.action_options.from)){
+                output_file.dest = output_file.dest.slice(0, - options.action_options.from.length) + options.action_options.to;
+            }
+        });
     }
 }
 

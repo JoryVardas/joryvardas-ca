@@ -40,6 +40,13 @@
         "dest": "css",
         "actions": [
           {
+            "action": "change_output_extension",
+            "options": {
+              "from": ".scss",
+              "to": ".css"
+            }
+          },
+          {
             "action": "compile_sass",
             "options": {
               "sourceMap": true,
@@ -75,6 +82,13 @@
         "source": "sass",
         "dest": "css",
         "actions": [
+          {
+            "action": "change_output_extension",
+            "options": {
+              "from": ".scss",
+              "to": ".css"
+            }
+          },
           {
             "action": "compile_sass",
             "options": {

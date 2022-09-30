@@ -31,7 +31,8 @@
   },
   "debug": {
     "replacements": [
-      {"from": "{{reset_css_name}}", "to":  "reset.css"}
+      {"from": "{{reset_css_name}}", "to":  "reset.css"},
+      {"from": "{{web_root}}", "to":  "/joryvardas-ca/public-dev/"}
     ],
     "paths": [
       {
@@ -74,7 +75,8 @@
   },
   "release": {
     "replacements": [
-      {"from": "{{reset_css_name}}", "to":  "reset.min.css"}
+      {"from": "{{reset_css_name}}", "to":  "reset.min.css"},
+      {"from": "{{web_root}}", "to":  "https://joryvardas.ca/"}
     ],
     "paths": [
       {

@@ -6,6 +6,7 @@ import glob from 'glob';
 import {optimize as svgOptimize} from 'svgo';
 import replaceInFile from 'replace-in-file';
 import minify from 'html-minifier';
+import * as marked from 'marked';
 
 const program = new Command();
 
@@ -84,6 +85,9 @@ const ACTION_LIST = {
     insert_into_template: (output_files, options)=>{
         let template_file = fs.readFileSync(options.action_options.template).toString();
         output_files[0].contents = template_file.replaceAll(options.action_options.insertion_point, output_files[0].contents);
+    },
+    compile_markdown: (output_files, options)=>{
+        output_files[0].contents = marked.parse(output_files[0].contents);
     }
 }
 

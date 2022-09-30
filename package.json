@@ -13,6 +13,7 @@
     "glob": "^8.0.3",
     "html-minifier": "^4.0.0",
     "make-dir-cli": "^3.0.0",
+    "marked": "^4.1.0",
     "modern-css-reset": "^1.4.0",
     "replace-in-file": "^6.3.5",
     "sass": "^1.51.0",

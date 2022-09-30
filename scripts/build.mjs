@@ -11,143 +11,127 @@ const program = new Command();
 
 let SASS_FILE_EXTENSION = '.scss';
 
-const compileSassFile = (input_file_path, output_directory, is_debug)=>{
-    if (!fs.existsSync(output_directory)) fs.mkdirSync(output_directory, {recursive: true});
-
-    const file_name = path.basename(input_file_path, SASS_FILE_EXTENSION);
-    const result = sass.compile(input_file_path, {style: is_debug ? 'expanded' : 'compressed', sourceMap: true});
-    fs.writeFileSync(`${output_directory}${path.sep}${file_name}.css`, result.css);
-    if(is_debug){
-        fs.writeFileSync(`${output_directory}${path.sep}${file_name}.css.map`, JSON.stringify(result.sourceMap));
-    }
-}
-const compileAllSassFiles = (input_directory, output_directory, is_debug)=>{
-    const files = glob.sync(`${input_directory}${path.sep}**${path.sep}*${SASS_FILE_EXTENSION}`);
-    files.forEach((file)=>{
-        //file will always start with input_directory, so remove the input directory
-        const file_name = path.basename(file);
-        const new_output_directory = path.join(output_directory,file.slice(input_directory.length, -file_name.length));
-        compileSassFile(file, new_output_directory, is_debug);
-    });
-}
-
-const optimizeSvg = (input_file, output_file)=>{
-    const result = svgOptimize(fs.readFileSync(input_file), {
-        path: input_file,
-        multipass: true,
-    });
-    fs.writeFileSync(output_file, result.data);
-}
-const copyImages = (input_directory, output_directory, is_debug)=>{
-    const files = glob.sync(`${input_directory}${path.sep}**${path.sep}*`);
-    files.forEach((file)=>{
-        //file will always start with input_directory, so remove the input directory
-        const file_name = path.basename(file);
-        const new_output_directory = path.join(output_directory,file.slice(input_directory.length, -file_name.length));
-        const new_file_name = path.join(new_output_directory, file_name);
-
-        if (!fs.existsSync(new_output_directory)) fs.mkdirSync(new_output_directory, {recursive: true});
-
-        if(file_name.endsWith('.svg') && is_debug) optimizeSvg(file, new_file_name);
-        else fs.copyFileSync(file, new_file_name);
-    });
-}
 
 const processContants = (config)=>{
     SASS_FILE_EXTENSION = config.constants?.sass_file_extension || '.scss';
 }
-const processStyles = (build_path, config, is_debug)=>{
-    if(config.style?.sass_paths !== undefined){
-        config.style.sass_paths.forEach((obj)=>{
-            compileAllSassFiles(obj.source, path.join(build_path, obj.dest), is_debug);
-        })
-    }
-}
-const processImages = (build_path, config, is_debug)=>{
-    if(config.image?.image_paths !== undefined){
-        config.image.image_paths.forEach((obj)=>{
-            copyImages(obj.source, path.join(build_path, obj.dest), is_debug);
-        })
-    }
-}
-const getReplacements = (config, is_debug)=>{
-    let replacements_from = [];
-    let replacements_to = [];
 
-    if(config.html?.common?.replacements !== undefined){
-        config.html.common.replacements.forEach((obj)=>{
-            replacements_from.push(obj.from);
-            replacements_to.push(obj.to);
+// Returns an array of replacement objects.
+// Each replacement object contains a from and to entry.
+const getReplacements = (config, is_debug)=>{
+    let replacements = [];
+
+    if(config.common?.replacements !== undefined){
+        config.common.replacements.forEach((obj)=>{
+            replacements.push(obj);
         });
     }
     if (is_debug) {
-        if (config.html?.debug?.replacements !== undefined) {
-            config.html.debug.replacements.forEach((obj) => {
-                replacements_from.push(obj.from);
-                replacements_to.push(obj.to);
+        if (config.debug?.replacements !== undefined) {
+            config.debug.replacements.forEach((obj) => {
+                replacements.push(obj);
             });
         }
     }
     else{
-        if (config.html?.release?.replacements !== undefined) {
-            config.html.release.replacements.forEach((obj) => {
-                replacements_from.push(obj.from);
-                replacements_to.push(obj.to);
+        if (config.release?.replacements !== undefined) {
+            config.release.replacements.forEach((obj) => {
+                replacements.push(obj);
             });
         }
     }
 
-    return [replacements_from, replacements_to];
+    return replacements;
 }
-const processHtml = (build_path, config, is_debug)=>{
-    if(config.html?.html_paths !== undefined){
-        const [replacements_from, replacements_to] = getReplacements(config, is_debug);
 
-        config.html.html_paths.forEach((obj)=>{
-            const dest_directory = path.join(build_path, path.dirname(obj.dest));
-            if(!fs.existsSync(dest_directory)) fs.mkdirSync(dest_directory,  {recursive: true});
-            const new_file_path = path.join(dest_directory, path.basename(obj.dest));
+// A list of the possible actions that can be performed.
+// Each action takes either 2 parameters:
+//   -output_files: A list of files to be output. The first entry is always the contents of
+//                  either the input file or the previous action. The other entries are
+//                  additional files to be output (such as map files).
+//
+//   -options:      An object which contains a action_options object for action specific
+//                  options and the replacements array.
+const ACTION_LIST = {
+    compile_sass: (output_files, options)=>{
+        let input_file = output_files[0];
+        //The input file will have an incorrect destination so correct it to a css file.
+        input_file.dest = input_file.dest.slice(0,-SASS_FILE_EXTENSION.length) + ".css";
 
-            if(is_debug){
-                fs.copyFileSync(obj.source, new_file_path);
-            }
-            else{
-                const result = minify.minify(fs.readFileSync(obj.source).toString(), config.html?.release?.minify_settings || {});
-                fs.writeFileSync(new_file_path, result);
-            }
-
-            replaceInFile.sync({files: new_file_path, from: replacements_from, to: replacements_to});
-        })
+        const result = sass.compile(input_file.source, options.action_options || {});
+        input_file.contents = result.css;
+        if(options.action_options?.sourceMap !== undefined && options.action_options.sourceMap){
+            output_files.push({
+               dest: input_file.dest + ".map",
+               contents: JSON.stringify(result.sourceMap)
+            });
+        }
+    },
+    optimize_svg: (output_files, options)=>{
+        output_files[0].contents = svgOptimize(output_files[0].contents, options.action_options || {}).data;
+    },
+    minify_html: (output_files, options)=>{
+        output_files[0].contents = minify.minify(output_files[0].contents, options.action_options || {});
+    },
+    replacement: (output_files, options)=>{
+        options.replacements.forEach((replacement)=>{
+            output_files[0].contents = output_files[0].contents.replaceAll(replacement.from, replacement.to);
+        });
     }
 }
-const copyFilesInList = (build_path, file_array) => {
-    file_array.forEach((obj)=>{
-        fs.copyFileSync(obj.source, path.join(build_path, obj.dest));
+
+// Given the source and destination file, load the file and perform
+// the configured actions on the source file before outputting the
+// result to the destination.
+const performActionsOnPath = (source, dest, actions, replacements)=>{
+    // if no actions are specified the default is a copy,
+    // so perform the copy via the filesystem instead of loading
+    // the contents and then writing them back out.
+    if(actions === undefined || actions.length == 0){
+        fs.copyFileSync(source, dest);
+        return;
+    }
+
+    let output_files = [{"source": source, "dest": dest, "contents": fs.readFileSync(source).toString()}];
+    actions.forEach((action)=>{
+        // Create a combined options object from the action options and the replacements
+        const options = {action_options: action.options, replacements: replacements};
+
+        if(action.action in ACTION_LIST) ACTION_LIST[action.action](output_files, options);
+    })
+    output_files.forEach((file)=>{
+        fs.mkdirSync(path.dirname(file.dest), {recursive: true});
+        fs.writeFileSync(file.dest, file.contents);
+    })
+}
+const performActionsOnPaths = (build_path, replacements, paths)=>{
+    paths.forEach((obj)=>{
+        if(obj.type === "file"){
+            performActionsOnPath(obj.source, path.join(build_path, obj.dest), obj.actions, replacements);
+        }
+        else if(obj.type === "directory"){
+            glob.sync(`${obj.source}${path.sep}**${path.sep}*`).forEach((file)=>{
+                performActionsOnPath(file, path.join(build_path, obj.dest, file.slice(obj.source.length)), obj.actions, replacements);
+            });
+        }
+        else{
+            console.log(`Unknown path type for path ${obj.source}`);
+        }
     });
-}
-const processFileToCopy = (build_path, config, is_debug)=>{
-    if(config.files_to_copy?.common !== undefined){
-        copyFilesInList(build_path, config.files_to_copy.common);
-    }
-    if(is_debug) {
-        if (config.files_to_copy?.debug !== undefined) {
-            copyFilesInList(build_path, config.files_to_copy.debug);
-        }
-    }
-    else {
-        if (config.files_to_copy?.release !== undefined) {
-            copyFilesInList(build_path, config.files_to_copy.release);
-        }
-    }
 }
 
 const build = (build_path, options)=>{
     const config = JSON.parse(fs.readFileSync(options.config).toString());
     processContants(config);
-    processStyles(build_path, config, options.debug);
-    processImages(build_path, config, options.debug);
-    processHtml(build_path, config, options.debug);
-    processFileToCopy(build_path, config, options.debug);
+
+    const replacements = getReplacements(config, options.debug);
+
+    if(config?.common?.paths !== undefined)
+        performActionsOnPaths(build_path, replacements, config.common.paths);
+    if(config?.debug?.paths !== undefined && options.debug)
+        performActionsOnPaths(build_path, replacements, config.debug.paths);
+    if(config?.release?.paths !== undefined && !options.debug)
+        performActionsOnPaths(build_path, replacements, config.release.paths);
 };
 
 

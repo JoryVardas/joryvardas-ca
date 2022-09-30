@@ -2,75 +2,116 @@
   "constants": {
     "sass_file_extension": ".scss"
   },
-  "style": {
-    "sass_paths": [
+  "common": {
+    "replacements": [
+      {"from": "{{github_address}}", "to":  "https://github.com/JoryVardas"},
+      {"from": "{{twitter_address}}", "to":  "https://twitter.com/JoryVardas"},
+      {"from": "{{cv_address}}", "to":  "CV.pdf"}
+    ],
+    "paths": [
       {
-        "source": "sass",
-        "dest": "css"
-      }
-    ]
-  },
-  "image": {
-    "image_paths": [
-      {
+        "type": "directory",
         "source": "img",
-        "dest": "img"
-      }
-    ]
-  },
-  "html": {
-    "release": {
-      "minify_settings": {
-        "collapseWhitespace": true,
-        "removeComments": true,
-        "removeOptionalTags": true,
-        "removeRedundantAttributes": true,
-        "removeScriptTypeAttributes": true,
-        "removeTagWhitespace": true,
-        "useShortDoctype": true,
-        "minifyCss": true,
-        "minifyJs": true
+        "dest": "img",
+        "actions": [
+          {
+            "action": "optimize_svg",
+            "options": {
+              "multipass": true
+            }
+          }
+        ]
       },
-      "replacements": [
-        {"from": "{{reset_css_name}}", "to":  "reset.min.css"}
-      ]
-    },
-    "common": {
-      "replacements": [
-        {"from": "{{github_address}}", "to":  "https://github.com/JoryVardas"},
-        {"from": "{{twitter_address}}", "to":  "https://twitter.com/JoryVardas"},
-        {"from": "{{cv_address}}", "to":  "CV.pdf"}
-      ]
-    },
-    "debug": {
-      "replacements": [
-        {"from": "{{reset_css_name}}", "to":  "reset.min"}
-      ]
-    },
-    "html_paths": [
       {
-        "source": "index.html",
-        "dest": "index.html"
-      }
-    ]
-  },
-  "files_to_copy": {
-    "common": [
-      {
+        "type": "file",
         "source": "additional_res/Jory-CV_v-9-08-2022.pdf",
         "dest": "CV.pdf"
       }
+    ]
+  },
+  "debug": {
+    "replacements": [
+      {"from": "{{reset_css_name}}", "to":  "reset.css"}
     ],
-    "release": [
+    "paths": [
       {
-        "source": "node_modules/modern-css-reset/dist/reset.min.css",
-        "dest": "css/reset.min.css"
-      }
-    ],
-    "debug": [
+        "type": "directory",
+        "source": "sass",
+        "dest": "css",
+        "actions": [
+          {
+            "action": "compile_sass",
+            "options": {
+              "sourceMap": true,
+              "style": "expanded"
+            }
+          }
+        ]
+      },
       {
+        "type": "file",
+        "source": "index.html",
+        "dest": "index.html",
+        "actions": [
+          {
+            "action": "replacement"
+          }
+        ]
+      },
+      {
+        "type": "file",
         "source": "node_modules/modern-css-reset/dist/reset.css",
         "dest": "css/reset.css"
+      }
+    ]
+  },
+  "release": {
+    "replacements": [
+      {"from": "{{reset_css_name}}", "to":  "reset.min.css"}
+    ],
+    "paths": [
+      {
+        "type": "directory",
+        "source": "sass",
+        "dest": "css",
+        "actions": [
+          {
+            "action": "compile_sass",
+            "options": {
+              "sourceMap": false,
+              "style": "compressed"
+            }
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "source": "index.html",
+        "dest": "index.html",
+        "actions": [
+          {
+            "action": "replacement"
+          },
+          {
+            "action": "minify_html",
+            "options": {
+              "collapseWhitespace": true,
+              "removeComments": true,
+              "removeOptionalTags": true,
+              "removeRedundantAttributes": true,
+              "removeScriptTypeAttributes": true,
+              "removeTagWhitespace": true,
+              "useShortDoctype": true,
+              "minifyCss": true,
+              "minifyJs": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "source": "node_modules/modern-css-reset/dist/reset.min.css",
+        "dest": "css/reset.min.css"
       }
     ]
   }

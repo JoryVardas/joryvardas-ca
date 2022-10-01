@@ -167,6 +167,7 @@ const performActionsOnPath = (source, dest, actions, replacements)=>{
     // so perform the copy via the filesystem instead of loading
     // the contents and then writing them back out.
     if(actions === undefined || actions.length == 0){
+        fs.mkdirSync(path.dirname(dest), {recursive: true});
         fs.copyFileSync(source, dest);
         return;
     }

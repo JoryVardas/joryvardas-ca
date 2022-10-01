@@ -26,13 +26,19 @@
         "type": "file",
         "source": "additional_res/Jory-CV_v-9-08-2022.pdf",
         "dest": "CV.pdf"
+      },
+      {
+        "type": "file",
+        "source": "node_modules/highlight.js/styles/github.css",
+        "dest": "css/code_highlight.css"
       }
     ]
   },
   "debug": {
     "replacements": [
       {"from": "{{reset_css_name}}", "to":  "reset.css"},
-      {"from": "{{web_root}}", "to":  "/joryvardas-ca/public-dev/"}
+      {"from": "{{web_root}}", "to":  "/joryvardas-ca/public-dev/"},
+      {"from": "{{code_css}}", "to": "code_highlight.css"}
     ],
     "paths": [
       {
@@ -70,6 +76,36 @@
         "type": "file",
         "source": "node_modules/modern-css-reset/dist/reset.css",
         "dest": "css/reset.css"
+      },
+      {
+        "type": "directory",
+        "source": "blog/articles",
+        "dest": "blog",
+        "actions": [
+          {
+            "action": "compile_markdown"
+          },
+          {
+            "action": "change_output_extension",
+            "options": {
+              "from": ".md",
+              "to": ".html"
+            }
+          },
+          {
+            "action": "insert_into_template",
+            "options": {
+              "template": "blog/blog_template.html",
+              "insertion_point": "{{blog_article}}"
+            }
+          },
+          {
+            "action": "replacement"
+          },
+          {
+            "action": "highlight_code"
+          }
+        ]
       }
     ]
   },
@@ -128,6 +164,50 @@
         "type": "file",
         "source": "node_modules/modern-css-reset/dist/reset.min.css",
         "dest": "css/reset.min.css"
+      },
+      {
+        "type": "directory",
+        "source": "blog/articles",
+        "dest": "blog",
+        "actions": [
+          {
+            "action": "compile_markdown"
+          },
+          {
+            "action": "change_output_extension",
+            "options": {
+              "from": ".md",
+              "to": ".html"
+            }
+          },
+          {
+            "action": "insert_into_template",
+            "options": {
+              "template": "blog/blog_template.html",
+              "insertion_point": "{{blog_article}}"
+            }
+          },
+          {
+            "action": "replacement"
+          },
+          {
+            "action": "highlight_code"
+          },
+          {
+            "action": "minify_html",
+            "options": {
+              "collapseWhitespace": true,
+              "removeComments": true,
+              "removeOptionalTags": true,
+              "removeRedundantAttributes": true,
+              "removeScriptTypeAttributes": true,
+              "removeTagWhitespace": true,
+              "useShortDoctype": true,
+              "minifyCss": true,
+              "minifyJs": true
+            }
+          }
+        ]
       }
     ]
   }
